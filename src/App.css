@@ -1,3 +1,6 @@
+*{
+  text-decoration: none !important;
+}
 #chat3 .form-control {
   border-color: transparent;
 }
@@ -13,4 +16,7 @@
   width: 10px;
   margin-left: 2.9rem;
   margin-top: -0.75rem;
+}
+header a{
+  color: #fff;
 }
