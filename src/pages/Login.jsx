@@ -15,7 +15,9 @@ export const Login = ()=>{
     };
     const handleFormSubmit=async(e)=>{
         e.preventDefault();
-        const result = await Axios.post('/user/login',user);
+        const result = await Axios.post('/user/login',user,{
+           withCredentials:"Include"
+        });
         console.log(result);
     }
     return <>
