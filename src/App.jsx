@@ -5,6 +5,7 @@ import { Layout } from './Layout/Layout';
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
 import { Home } from './pages/Home';
+import ProtectedRoute from './components/ProtectedRoute';
 const App = ()=>{
     const router = createBrowserRouter([
         {
@@ -13,7 +14,7 @@ const App = ()=>{
             children:[
                 {
                     index:true,
-                    element:<Home />
+                    element:<ProtectedRoute element={<Home />} />,
                 },
                 {
                     path:'/login',
