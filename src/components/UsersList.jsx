@@ -1,19 +1,23 @@
 import { MDBCol, MDBIcon, MDBInputGroup, MDBTypography } from "mdb-react-ui-kit";
 
 const UsersList=()=>{
+  const handleInputChange = async(e)=>{
+    const {value}=e.target;
+  };
 return   <MDBCol md="6" lg="5" xl="4" className="mb-4 mb-md-0">
 <div className="p-3">
   <MDBInputGroup className="rounded mb-3">
     <input
       className="form-control rounded"
       placeholder="Search"
+      onChange={handleInputChange}
+      // value={val}
       type="search"
     />
     <span
       className="input-group-text border-0"
       id="search-addon"
     >
-      <MDBIcon fas icon="search" />
     </span>
   </MDBInputGroup>
     <MDBTypography listUnStyled className="mb-0">

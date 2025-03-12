@@ -1,6 +1,15 @@
 import { MDBIcon } from "mdb-react-ui-kit"
+import { useState } from "react"
 
-const Chatting =()=>{
+const Chatting =({setMessage})=>{
+  const [val,setVal]=useState('');
+  const handleInputChange = (e)=>{
+    const {value}=e.target;
+    setVal(value);
+  }
+  const handleOnClick = ()=>{
+    setMessage(val);
+  }
     return <>
                 <div className="d-flex flex-row justify-content-start">
                       <img
@@ -67,17 +76,15 @@ const Chatting =()=>{
                       type="text"
                       className="form-control form-control-lg"
                       id="exampleFormControlInput2"
+                      onChange={handleInputChange}
+                      value={val}
+                      name="message"
                       placeholder="Type message"
                     />
-                    <a className="ms-1 text-muted" href="#!">
-                      <MDBIcon fas icon="paperclip" />
-                    </a>
-                    <a className="ms-3 text-muted" href="#!">
-                      <MDBIcon fas icon="smile" />
-                    </a>
-                    <a className="ms-3" href="#!">
-                      <MDBIcon fas icon="paper-plane" />
-                    </a>
+                    {/* <a className="ms-1 text-muted" href="#!">
+                      
+                    </a> */}
+                    <button className="btn btn-primary btn-sm" onClick={handleOnClick}>SEND</button>
                   </div>
     </>
 }

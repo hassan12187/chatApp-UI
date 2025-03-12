@@ -18,7 +18,6 @@ export const Login = ()=>{
         const result = await Axios.post('/user/login',user,{
            withCredentials:"Include"
         });
-        console.log(result);
     }
     return <>
            <div className="container mt-3">

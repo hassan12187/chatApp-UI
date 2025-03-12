@@ -9,7 +9,7 @@ import {
 import UsersList from "./UsersList";
 import Chatting from "./Chatting";
 
-export default function Chat() {
+export default function Chat({setMessage}) {
   return (
     <MDBContainer fluid className="py-5" style={{ backgroundColor: "#CDC4F9" }}>
       <MDBRow>
@@ -19,7 +19,7 @@ export default function Chat() {
               <MDBRow>
               <UsersList />
                 <MDBCol md="6" lg="7" xl="8">
-            <Chatting />
+            <Chatting  setMessage={setMessage} />
                 </MDBCol>
               </MDBRow>
             </MDBCardBody>
