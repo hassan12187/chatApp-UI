@@ -1,8 +1,11 @@
 import { MDBCol, MDBIcon, MDBInputGroup, MDBTypography } from "mdb-react-ui-kit";
+import { useState } from "react";
 
 const UsersList=()=>{
+  const [state,setState]=useState('');
   const handleInputChange = async(e)=>{
     const {value}=e.target;
+    setState(value);
   };
 return   <MDBCol md="6" lg="5" xl="4" className="mb-4 mb-md-0">
 <div className="p-3">
@@ -11,14 +14,11 @@ return   <MDBCol md="6" lg="5" xl="4" className="mb-4 mb-md-0">
       className="form-control rounded"
       placeholder="Search"
       onChange={handleInputChange}
-      // value={val}
+      value={state}
       type="search"
     />
-    <span
-      className="input-group-text border-0"
-      id="search-addon"
-    >
-    </span>
+   <button  className="input-group-text border-0"
+      id="search-addon" onClick={()=>{console.log(state)}}>Search</button>
   </MDBInputGroup>
     <MDBTypography listUnStyled className="mb-0">
       <li className="p-2 border-bottom">

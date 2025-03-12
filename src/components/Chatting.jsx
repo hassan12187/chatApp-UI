@@ -1,17 +1,38 @@
-import { MDBIcon } from "mdb-react-ui-kit"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useCustom } from "../store/store";
 
-const Chatting =({setMessage})=>{
+const Chatting =()=>{
+  const {token,user} = useCustom();
   const [val,setVal]=useState('');
+  const [socket,setSocket]=useState(null);
+  const [messages,setMessages]=useState([]);
   const handleInputChange = (e)=>{
     const {value}=e.target;
     setVal(value);
   }
+  useEffect(()=>{
+    const ws = new WebSocket(`ws://localhost:8000?token=${token}`);
+    setSocket(ws);
+    ws.onmessage=(data)=>{
+      const jsonData = JSON.parse(data.data);
+      const {senderName,message}=jsonData;
+      setMessages((prev)=>{
+        return [...prev,{sendBy:'server',message,date:senderName}]
+      })
+  }
+  return ()=>ws.close();
+  },[]);
   const handleOnClick = ()=>{
-    setMessage(val);
+    socket.send(val);
+    setMessages((prev)=>{
+      return [...prev,{sendBy:'user',message:val}];
+    })
+    setVal('');
   }
     return <>
-                <div className="d-flex flex-row justify-content-start">
+                {
+                  messages?.map(({sendBy,message,date},index)=>{
+                     return  sendBy ==='user' ? <div key={index} className="d-flex flex-row justify-content-start">
                       <img
                         src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava6-bg.webp"
                         alt="avatar 1"
@@ -22,25 +43,21 @@ const Chatting =({setMessage})=>{
                           className="small p-2 ms-3 mb-1 rounded-3"
                           style={{ backgroundColor: "#f5f6f7" }}
                         >
-                          Lorem ipsum dolor sit amet, consectetur adipiscing
-                          elit, sed do eiusmod tempor incididunt ut labore et
-                          dolore magna aliqua.
+                          {message}
                         </p>
                         <p className="small ms-3 mb-3 rounded-3 text-muted float-end">
-                          12:00 PM | Aug 13
+                          {date}
                         </p>
                       </div>
                     </div>
-
-                    <div className="d-flex flex-row justify-content-end">
+                      :
+                     <div key={index} className="d-flex flex-row justify-content-end">
                       <div>
                         <p className="small p-2 me-3 mb-1 text-white rounded-3 bg-primary">
-                          Ut enim ad minim veniam, quis nostrud exercitation
-                          ullamco laboris nisi ut aliquip ex ea commodo
-                          consequat.
+                          {message}
                         </p>
                         <p className="small me-3 mb-3 rounded-3 text-muted">
-                          12:00 PM | Aug 13
+                          {date}
                         </p>
                       </div>
                       <img
@@ -48,24 +65,11 @@ const Chatting =({setMessage})=>{
                         alt="avatar 1"
                         style={{ width: "45px", height: "100%" }}
                       />
-                    </div>
-                    <div className="d-flex flex-row justify-content-end">
-                      <div>
-                        <p className="small p-2 me-3 mb-1 text-white rounded-3 bg-primary">
-                          Ut enim ad minima veniam, quis nostrum exercitationem
-                          ullam corporis suscipit laboriosam, nisi ut aliquid ex
-                          ea commodi consequatur?
-                        </p>
-                        <p className="small me-3 mb-3 rounded-3 text-muted">
-                          12:00 PM | Aug 13
-                        </p>
-                      </div>
-                      <img
-                        src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava1-bg.webp"
-                        alt="avatar 1"
-                        style={{ width: "45px", height: "100%" }}
-                      />
-                    </div>
+                    </div> 
+                      })
+                    } 
+                  
+            
                   <div className="text-muted d-flex justify-content-start align-items-center pe-3 pt-3 mt-2">
                     <img
                       src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava6-bg.webp"

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Axios from '../components/axios';
+import { Navigate, redirect } from "react-router-dom";
 
 export const Login = ()=>{
     const [user,setUser]=useState({
@@ -15,7 +16,7 @@ export const Login = ()=>{
     };
     const handleFormSubmit=async(e)=>{
         e.preventDefault();
-        const result = await Axios.post('/user/login',user,{
+        const {data,status} = await Axios.post('/user/login',user,{
            withCredentials:"Include"
         });
     }
@@ -33,7 +34,7 @@ export const Login = ()=>{
                     <input type="password" name="password" id="password" onChange={handleInputChange} value={user.password} className="form-control" placeholder="enter password" />
                 </div>
             </div>
-            <button type="submit" className="btn btn-primary mt-3">Register</button>
+            <button type="submit" className="btn btn-primary mt-3">Login</button>
             </form>
         </div>
     </>
