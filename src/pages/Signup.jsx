@@ -8,6 +8,7 @@ export const Signup = ()=>{
         email:"",
         password:""
     });
+    const [file,setFile]=useState();
     const handleInputChange=(e)=>{
         const name = e.target.name;
         const value = e.target.value;
@@ -17,13 +18,21 @@ export const Signup = ()=>{
     };
     const handleFormSubmit=async(e)=>{
         e.preventDefault();
-        const result = await Axios.post('/user/signup',user);
+        const formData = new FormData();
+        formData.append('username',user.username);
+        formData.append('email',user.email);
+        formData.append('password',user.password);
+        formData.append('profileImage',file);
+        const result = await Axios.post('/user/signup',formData);
         console.log(result);
+    }
+    const handleFileUpload=(e)=>{
+        setFile(e.target.files[0]);
     }
     return <>
         <div className="container mt-3">
         <h1>Register</h1>
-            <form method="post" onSubmit={handleFormSubmit}>
+            <form method="post" id="myForm" onSubmit={handleFormSubmit} encType="multipart/form-data">
             <div className="row">
                 <div className="col-md-12">
                 <label className="form-label" htmlFor="username">username</label>
@@ -36,6 +45,10 @@ export const Signup = ()=>{
                 <div className="col-md-12">
                 <label htmlFor="password" className="form-label">password</label>
                     <input type="password" name="password" id="password" onChange={handleInputChange} value={user.password} className="form-control" placeholder="enter password" />
+                </div>
+                <div className="col-md-12 mt-2">
+                <label htmlFor="profileImage" className="form-label">Select Profile Image</label>
+                <input type="file" id="profileImage" name="profileImage" onChange={handleFileUpload} className="form-control" />
                 </div>
             </div>
             <button type="submit" className="btn btn-primary mt-3">Register</button>

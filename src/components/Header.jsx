@@ -13,9 +13,13 @@ export const Header = ()=>{
         <header className="d-flex justify-content-end bg bg-dark py-4 px-3">
             <nav className="d-flex gap-3">
             {
-                token ? <><NavLink to={'/'}>Home</NavLink> <NavLink onClick={()=>{
+                token ? <><NavLink to={'/'}>Home</NavLink>
+                <NavLink to={'/friends'}>Friends</NavLink>  
+                 <NavLink onClick={()=>{
                     new Cookies().remove('token');
-                }}>logout</NavLink></> :<>
+                }}>logout</NavLink>
+                </> :<>
+                 
                  <NavLink to={'/login'}>Login</NavLink>
                 <NavLink to={'/signup'}>Signup</NavLink>
                 </>

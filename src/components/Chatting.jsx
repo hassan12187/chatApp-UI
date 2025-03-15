@@ -72,7 +72,7 @@ const Chatting =()=>{
             
                   <div className="text-muted d-flex justify-content-start align-items-center pe-3 pt-3 mt-2">
                     <img
-                      src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava6-bg.webp"
+                      src={`http://localhost:8000/images/${user.image}`}
                       alt="avatar 3"
                       style={{ width: "40px", height: "100%" }}
                     />
