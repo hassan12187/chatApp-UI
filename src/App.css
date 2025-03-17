@@ -1,5 +1,6 @@
 *{
   text-decoration: none !important;
+  list-style: none;
 }
 #chat3 .form-control {
   border-color: transparent;

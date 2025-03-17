@@ -5,7 +5,7 @@ import checkToken from "../services/checkToken";
 const StoreContext = createContext();
 const Store=({children})=>{
     const [user,setUser]=useState({});
-    const [otherUser,setOtherUser]=useState({});
+    // const [otherUser,setOtherUser]=useState({});
     const token = checkToken();
     const verifyTokenHandler=async()=>{
         const {status,data} = await Axios.get('/user/api/protected',{
@@ -18,13 +18,17 @@ const Store=({children})=>{
     };
     const getUserById=async(uid)=>{
         try {
-            const user = await Axios.get(`user/${uid}`);
-            setOtherUser(user.data);
+            const user = await Axios.get(`user/${uid}`,{
+                headers:{
+                    Authorization:`Bearer ${token}`
+                }
+            });
+            return user.data;
         } catch (error) {
             console.log(`error getting user ${error}`);
         }
     }
-    return <StoreContext.Provider value={{user,verifyTokenHandler,token,getUserById,otherUser}}>
+    return <StoreContext.Provider value={{user,verifyTokenHandler,token,getUserById}}>
     {children}
     </StoreContext.Provider>
 }

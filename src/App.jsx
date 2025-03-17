@@ -28,10 +28,10 @@ const App = ()=>{
                 },
                 {
                     path:"/user/:id",
-                    element:<UserDetail />
+                    element:<ProtectedRoute element={<UserDetail />} />
                 },{
                     path:'/friends',
-                    element:<Friends />
+                    element:<ProtectedRoute element={<Friends />} />
                 }
             ]
         }

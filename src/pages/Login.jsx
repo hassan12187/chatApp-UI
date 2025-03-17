@@ -1,6 +1,5 @@
 import { useState } from "react";
 import Axios from '../components/axios';
-import { Navigate, redirect } from "react-router-dom";
 
 export const Login = ()=>{
     const [user,setUser]=useState({
@@ -17,8 +16,8 @@ export const Login = ()=>{
     const handleFormSubmit=async(e)=>{
         e.preventDefault();
         const {data,status} = await Axios.post('/user/login',user,{
-           withCredentials:"Include"
-        });
+            withCredentials:"Include"
+         });
     }
     return <>
            <div className="container mt-3">

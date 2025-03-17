@@ -1,24 +1,23 @@
-import { MDBCol, MDBIcon, MDBInputGroup, MDBTypography } from "mdb-react-ui-kit";
+import { MDBCol, MDBInputGroup, MDBTypography } from "mdb-react-ui-kit";
 import { useState } from "react";
 import Axios from '../components/axios';
 import { NavLink } from "react-router-dom";
+import { useQuery } from "react-query";
 
 const UsersList=()=>{
   const [state,setState]=useState('');
-  const [users,setUsers]=useState([]);
   const handleInputChange = async(e)=>{
-    const {value}=e.target;
-    setState(value);
+    setState(e.target.value);
   };
-  const handleSearch=async()=>{
-    try {
-      const data = await Axios.get(`/user/allUsers?q=${state}`);
-      setUsers(data.data);
-    } catch (error) { 
-      console.log(`Error Searching User ${error}`);
-    }
-    setState('');
-  }
+  const {data,isLoading}=useQuery({
+    queryKey:['userSearching',state],
+    queryFn:async()=>{
+      if(state==="")return;
+      const result = await Axios.get(`/user/allUsers?q=${state}`);
+      return result.data;
+    },
+    keepPreviousData:true
+  });
 return   <MDBCol md="6" lg="5" xl="4" className="mb-4 mb-md-0">
 <div className="p-3">
   <MDBInputGroup className="rounded mb-3">
@@ -26,15 +25,14 @@ return   <MDBCol md="6" lg="5" xl="4" className="mb-4 mb-md-0">
       className="form-control rounded"
       placeholder="Search"
       onChange={handleInputChange}
-      value={state}
+      // value={state}
       type="search"
     />
-   <button  className="input-group-text border-0"
-      id="search-addon" onClick={handleSearch} >Search</button>
+    {/* <Button text={'Search'} onEvent={handleSearch} /> */}
   </MDBInputGroup>
     <MDBTypography listUnStyled className="mb-0">
     {
-      users.map((user,index)=>{
+      data?.map((user,index)=>{
         return <li key={index} className="p-2 border-bottom">
         <NavLink
           to={`user/${user._id}`}

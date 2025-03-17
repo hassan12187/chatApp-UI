@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { useCustom } from "../store/store";
+import Button from "./Button";
 
 const Chatting =()=>{
   const {token,user} = useCustom();
@@ -23,11 +24,12 @@ const Chatting =()=>{
   return ()=>ws.close();
   },[]);
   const handleOnClick = ()=>{
-    socket.send(val);
-    setMessages((prev)=>{
-      return [...prev,{sendBy:'user',message:val}];
-    })
-    setVal('');
+    console.log("button clicked")
+    // socket.send(val);
+    // setMessages((prev)=>{
+    //   return [...prev,{sendBy:'user',message:val}];
+    // })
+    // setVal('');
   }
     return <>
                 {
@@ -88,7 +90,7 @@ const Chatting =()=>{
                     {/* <a className="ms-1 text-muted" href="#!">
                       
                     </a> */}
-                    <button className="btn btn-primary btn-sm" onClick={handleOnClick}>SEND</button>
+                    <Button text={'SEND'}  onEvent={handleOnClick} />
                   </div>
     </>
 }
