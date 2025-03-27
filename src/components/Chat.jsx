@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import {
   MDBContainer,
   MDBRow,
@@ -9,7 +9,7 @@ import {
 import UsersList from "./UsersList";
 import Chatting from "./Chatting";
 
-export default function Chat() {
+export const Chat = memo(()=> {
   return (
     <MDBContainer fluid className="py-5" style={{ backgroundColor: "#CDC4F9" }}>
       <MDBRow>
@@ -28,4 +28,4 @@ export default function Chat() {
       </MDBRow>
     </MDBContainer>
   );
-}
+})

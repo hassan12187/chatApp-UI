@@ -1,11 +1,15 @@
 import { MDBCol, MDBInputGroup, MDBTypography } from "mdb-react-ui-kit";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Axios from '../components/axios';
 import { NavLink } from "react-router-dom";
-import { useQuery } from "react-query";
+import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCustom } from "../store/store";
 
 const UsersList=()=>{
+  const queryClint = useQueryClient();
   const [state,setState]=useState('');
+  const [friends,setFriends]=useState([]);
+  const {token,user}=useCustom();
   const handleInputChange = async(e)=>{
     setState(e.target.value);
   };
@@ -17,7 +21,11 @@ const UsersList=()=>{
       return result.data;
     },
     keepPreviousData:true
-  });
+  }); 
+  useEffect(()=>{
+    const dt = queryClint.getQueryData(['friends',user]);
+    setFriends(dt);
+  },[]);
 return   <MDBCol md="6" lg="5" xl="4" className="mb-4 mb-md-0">
 <div className="p-3">
   <MDBInputGroup className="rounded mb-3">
@@ -32,10 +40,10 @@ return   <MDBCol md="6" lg="5" xl="4" className="mb-4 mb-md-0">
   </MDBInputGroup>
     <MDBTypography listUnStyled className="mb-0">
     {
-      data?.map((user,index)=>{
+        (!data ? friends : data)?.map((user,index)=>{
         return <li key={index} className="p-2 border-bottom">
         <NavLink
-          to={`user/${user._id}`}
+          to={`/${user._id}`}
           className="d-flex justify-content-between"
         >
           <div className="d-flex flex-row">

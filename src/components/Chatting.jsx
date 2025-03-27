@@ -1,40 +1,48 @@
 import { useEffect, useState } from "react"
 import { useCustom } from "../store/store";
 import Button from "./Button";
+import {io} from 'socket.io-client';
+import { useParams } from "react-router-dom";
 
 const Chatting =()=>{
-  const {token,user} = useCustom();
   const [val,setVal]=useState('');
+  const {receiverId} = useParams();
   const [socket,setSocket]=useState(null);
   const [messages,setMessages]=useState([]);
+  const {user,token}=useCustom();
   const handleInputChange = (e)=>{
     const {value}=e.target;
     setVal(value);
   }
   useEffect(()=>{
-    const ws = new WebSocket(`ws://localhost:8000?token=${token}`);
-    setSocket(ws);
-    ws.onmessage=(data)=>{
-      const jsonData = JSON.parse(data.data);
-      const {senderName,message}=jsonData;
+    const socket = io('ws://localhost:8000',{
+      query:{userId:user._id}
+    });
+    setSocket(socket);
+    socket.emit('register',user._id,receiverId);
+    socket.on('previousMessages',(previousMessages)=>{
+      setMessages(previousMessages)
+    })
+    socket.on('messageSender',(msg)=>{
+      console.log(msg);
       setMessages((prev)=>{
-        return [...prev,{sendBy:'server',message,date:senderName}]
-      })
-  }
-  return ()=>ws.close();
-  },[]);
+        return [...prev,msg]
+      });
+    })
+  return ()=>{
+    socket.off('messageSender');
+    socket.disconnect();
+  };
+  },[user,receiverId]);
   const handleOnClick = ()=>{
-    console.log("button clicked")
-    // socket.send(val);
-    // setMessages((prev)=>{
-    //   return [...prev,{sendBy:'user',message:val}];
-    // })
-    // setVal('');
-  }
+    socket.emit('message',JSON.stringify({receiverId,senderId:user._id,txt:val}));
+    setMessages((prev)=> [...prev,{senderId:user._id,message:val,date:new Date().toLocaleTimeString()}] );
+    setVal("");
+  };
     return <>
                 {
-                  messages?.map(({sendBy,message,date},index)=>{
-                     return  sendBy ==='user' ? <div key={index} className="d-flex flex-row justify-content-start">
+                  messages?.map(({senderId,message,date},index)=>{
+                     return  senderId ===user._id ?   <div key={index} className="d-flex flex-row justify-content-start">
                       <img
                         src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava6-bg.webp"
                         alt="avatar 1"
@@ -72,9 +80,9 @@ const Chatting =()=>{
                     } 
                   
             
-                  <div className="text-muted d-flex justify-content-start align-items-center pe-3 pt-3 mt-2">
+                  <div className="text-muted d-flex justify-content-start align-items-center pe-3 pt-3 mt-2 gap-2">
                     <img
-                      src={`http://localhost:8000/images/${user.image}`}
+                      // src={`http://localhost:8000/images/${user.image}`}
                       alt="avatar 3"
                       style={{ width: "40px", height: "100%" }}
                     />
@@ -87,9 +95,6 @@ const Chatting =()=>{
                       name="message"
                       placeholder="Type message"
                     />
-                    {/* <a className="ms-1 text-muted" href="#!">
-                      
-                    </a> */}
                     <Button text={'SEND'}  onEvent={handleOnClick} />
                   </div>
     </>

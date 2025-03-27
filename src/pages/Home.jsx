@@ -1,14 +1,10 @@
-import { useEffect } from 'react';
-import Chat from '../components/Chat';
-// import { useCustom } from '../store/store';
-export const Home = ()=>{
-    // const {verifyTokenHandler} = useCustom();
-    
-    // useEffect(()=>{
-    //     verifyTokenHandler();
-    //     return;
-    // },[]);
+import {Chat} from '../components/Chat';
+import { useCustom } from '../store/store';
+import { memo } from 'react';
+export const Home = memo(()=>{
+    const {isLoading}=useCustom();
+    if(isLoading)return <h1>Loading....</h1>;
     return <div className='container mt-3'>
         <Chat />
     </div>
-}
+})

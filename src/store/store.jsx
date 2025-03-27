@@ -1,21 +1,25 @@
-import { createContext, useContext, useEffect, useState } from "react"
+import { createContext, useContext, useState } from "react"
 import Axios from "../components/axios";
 import checkToken from "../services/checkToken";
+import { useQuery } from "@tanstack/react-query";
 
 const StoreContext = createContext();
 const Store=({children})=>{
-    const [user,setUser]=useState({});
-    // const [otherUser,setOtherUser]=useState({});
     const token = checkToken();
-    const verifyTokenHandler=async()=>{
-        const {status,data} = await Axios.get('/user/api/protected',{
-            headers:{
-                Authorization:`Bearer ${token}`
-            }
+    const {data,isLoading}=useQuery({
+        queryKey:['user',token],
+        queryFn:async()=>{
+                if(!token)throw new Error('no token available');
+                 const {data} = await Axios.get('/validate',{
+                headers:{
+                    Authorization:`Bearer ${token}`
+                }
+            });
+            return data;
+            },
+            staleTime:Infinity,
+            cacheTime:Infinity
         });
-        setUser(data.user);
-        return;
-    };
     const getUserById=async(uid)=>{
         try {
             const user = await Axios.get(`user/${uid}`,{
@@ -28,7 +32,8 @@ const Store=({children})=>{
             console.log(`error getting user ${error}`);
         }
     }
-    return <StoreContext.Provider value={{user,verifyTokenHandler,token,getUserById}}>
+    console.log('store');
+    return <StoreContext.Provider value={{getUserById,user:data,isLoading,token}}>
     {children}
     </StoreContext.Provider>
 }

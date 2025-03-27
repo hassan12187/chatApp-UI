@@ -2,7 +2,7 @@ import React from 'react'
 import { useParams } from 'react-router-dom'
 import { useCustom } from '../store/store';
 import Axios from '../components/axios';
-import { QueryClient, useMutation, useQuery } from 'react-query';
+import { QueryClient, useMutation, useQuery } from '@tanstack/react-query';
 import Button from '../components/Button';
 
 const UserDetail = () => {

@@ -21,3 +21,6 @@
 header a{
   color: #fff;
 }
+input{
+  border: 1px solid rgb(141, 141, 141) !important;
+}

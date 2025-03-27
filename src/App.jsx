@@ -19,6 +19,10 @@ const App = ()=>{
                     element:<ProtectedRoute element={<Home />} />,
                 },
                 {
+                    path:'/:receiverId',
+                    element:<Home />
+                },
+                {
                     path:'/login',
                     element:<Login />
                 },
