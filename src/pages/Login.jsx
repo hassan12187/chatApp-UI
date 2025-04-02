@@ -1,7 +1,11 @@
 import { useState } from "react";
 import Axios from '../components/axios';
+import { useCustom } from "../store/store";
+import { useNavigate } from "react-router-dom";
 
 export const Login = ()=>{
+    const navigate = useNavigate();
+    const {setToken}=useCustom();
     const [user,setUser]=useState({
         email:"",
         password:""
@@ -18,6 +22,10 @@ export const Login = ()=>{
         const {data,status} = await Axios.post('/user/login',user,{
             withCredentials:"Include"
          });
+         if(status==200){
+             setToken(data.token);
+             return navigate({pathname:'/'});
+         }
     }
     return <>
            <div className="container mt-3">

@@ -1,7 +1,9 @@
 import { Navigate } from "react-router-dom"
-import checkToken from "../services/checkToken"
+import { useCustom } from "../store/store";
+import { memo } from "react";
 
-const ProtectedRoute=({element})=>{
-    return checkToken() ? element : <Navigate to={'/login'} />;
-}
+const ProtectedRoute=memo(({element})=>{
+    const {token}=useCustom();
+    return token ? element : <Navigate to={'/login'} />;
+})
 export default ProtectedRoute;

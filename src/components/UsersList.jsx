@@ -2,13 +2,13 @@ import { MDBCol, MDBInputGroup, MDBTypography } from "mdb-react-ui-kit";
 import { useEffect, useState } from "react";
 import Axios from '../components/axios';
 import { NavLink } from "react-router-dom";
-import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCustom } from "../store/store";
+import Button from "./Button";
 
 const UsersList=()=>{
-  const queryClint = useQueryClient();
+  const queryClient = useQueryClient();
   const [state,setState]=useState('');
-  const [friends,setFriends]=useState([]);
   const {token,user}=useCustom();
   const handleInputChange = async(e)=>{
     setState(e.target.value);
@@ -20,12 +20,29 @@ const UsersList=()=>{
       const result = await Axios.get(`/user/allUsers?q=${state}`);
       return result.data;
     },
-    keepPreviousData:true
-  }); 
-  useEffect(()=>{
-    const dt = queryClint.getQueryData(['friends',user]);
-    setFriends(dt);
-  },[]);
+    keepPreviousData:true,
+    staleTime:Infinity,
+    cacheTime:Infinity
+  });
+  const getFriends = async()=>{
+    const result = await Axios.get(`/user/userFriends/${user._id}`);
+    // console.log(result.data);
+    return result.data;
+}
+const {data:friendsData,isLoading:friendsLoading} = useQuery({
+    queryKey:['friends',user],
+    queryFn:getFriends,
+    staleTime:Infinity,
+    cacheTime:Infinity
+});
+// const getUnreadMessages=async()=>{
+//  const unread = await Axios.get(`/user/unreadMessages/${user._id}`)
+//   console.log(unread);
+// }
+// useEffect(()=>{ 
+//   getUnreadMessages();
+// },[])
+if(friendsLoading)return <h1>Loading...</h1>;
 return   <MDBCol md="6" lg="5" xl="4" className="mb-4 mb-md-0">
 <div className="p-3">
   <MDBInputGroup className="rounded mb-3">
@@ -40,7 +57,7 @@ return   <MDBCol md="6" lg="5" xl="4" className="mb-4 mb-md-0">
   </MDBInputGroup>
     <MDBTypography listUnStyled className="mb-0">
     {
-        (!data ? friends : data)?.map((user,index)=>{
+        (state !== "" ? data : friendsData)?.map((user,index)=>{
         return <li key={index} className="p-2 border-bottom">
         <NavLink
           to={`/${user._id}`}
@@ -59,14 +76,14 @@ return   <MDBCol md="6" lg="5" xl="4" className="mb-4 mb-md-0">
             <div className="pt-1">
               <p className="fw-bold mb-0">{user.username}</p>
               <p className="small text-muted">
-                Hello, Are you there?
+             {/* message */}
               </p>
             </div>
           </div>
           <div className="pt-1">
             <p className="small text-muted mb-1">Just now</p>
             <span className="badge bg-danger rounded-pill float-end">
-              3
+              {user.unreadCount}
             </span>
           </div>
         </NavLink>

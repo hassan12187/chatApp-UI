@@ -1,23 +1,21 @@
 import { useEffect } from "react"
 import { NavLink } from "react-router-dom"
-import checkToken from "../services/checkToken";
-import { Cookies } from "react-cookie";
+import { useCustom } from "../store/store";
 
 export const Header = ()=>{
-    const token = checkToken();
+    const {token,removeToken,user} = useCustom();
     useEffect(()=>{
         document.title="Signup";
         return;
     },[]);
     return <>
-        <header className="d-flex justify-content-end bg bg-dark py-4 px-3">
+        <header className="d-flex justify-content-between align-items-center bg bg-dark py-4 px-3">
+        <h4 className="text-light">{user?.username}</h4>
             <nav className="d-flex gap-3">
             {
                 token ? <><NavLink to={'/'}>Home</NavLink>
                 <NavLink to={'/friends'}>Friends</NavLink>  
-                 <NavLink onClick={()=>{
-                    new Cookies().remove('token');
-                }}>logout</NavLink>
+                 <NavLink onClick={removeToken}>logout</NavLink>
                 </> :<>
                  
                  <NavLink to={'/login'}>Login</NavLink>

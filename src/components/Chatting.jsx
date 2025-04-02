@@ -1,39 +1,40 @@
 import { useEffect, useState } from "react"
 import { useCustom } from "../store/store";
 import Button from "./Button";
-import {io} from 'socket.io-client';
 import { useParams } from "react-router-dom";
+import { io } from "socket.io-client";
 
 const Chatting =()=>{
   const [val,setVal]=useState('');
-  const {receiverId} = useParams();
   const [socket,setSocket]=useState(null);
+  const {receiverId} = useParams();
   const [messages,setMessages]=useState([]);
-  const {user,token}=useCustom();
+  const {user}=useCustom();
   const handleInputChange = (e)=>{
     const {value}=e.target;
     setVal(value);
   }
   useEffect(()=>{
-    const socket = io('ws://localhost:8000',{
-      query:{userId:user._id}
-    });
-    setSocket(socket);
-    socket.emit('register',user._id,receiverId);
-    socket.on('previousMessages',(previousMessages)=>{
+    const sk = io('ws://localhost:8000');
+    setSocket(sk);
+    if(receiverId !== undefined){
+      sk.emit('register',user._id,receiverId);
+    }
+    sk.on('previousMessages',(previousMessages)=>{
       setMessages(previousMessages)
     })
-    socket.on('messageSender',(msg)=>{
+    sk.on('messageSender',(msg)=>{
       console.log(msg);
       setMessages((prev)=>{
         return [...prev,msg]
       });
-    })
+    });
   return ()=>{
-    socket.off('messageSender');
-    socket.disconnect();
+    sk.off('messageSender');
+    sk.off('previousMessages')
+    sk.disconnect();
   };
-  },[user,receiverId]);
+  },[]);
   const handleOnClick = ()=>{
     socket.emit('message',JSON.stringify({receiverId,senderId:user._id,txt:val}));
     setMessages((prev)=> [...prev,{senderId:user._id,message:val,date:new Date().toLocaleTimeString()}] );
@@ -44,7 +45,7 @@ const Chatting =()=>{
                   messages?.map(({senderId,message,date},index)=>{
                      return  senderId ===user._id ?   <div key={index} className="d-flex flex-row justify-content-start">
                       <img
-                        src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava6-bg.webp"
+                        src={`http://localhost:8000/images/${user.profileImage}`}
                         alt="avatar 1"
                         style={{ width: "45px", height: "100%" }}
                       />
@@ -71,7 +72,7 @@ const Chatting =()=>{
                         </p>
                       </div>
                       <img
-                        src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava1-bg.webp"
+                        src={`http://localhost:8000/images/${user.profileImage}`}
                         alt="avatar 1"
                         style={{ width: "45px", height: "100%" }}
                       />
@@ -82,7 +83,7 @@ const Chatting =()=>{
             
                   <div className="text-muted d-flex justify-content-start align-items-center pe-3 pt-3 mt-2 gap-2">
                     <img
-                      // src={`http://localhost:8000/images/${user.image}`}
+                      src={`http://localhost:8000/images/${user.image}`}
                       alt="avatar 3"
                       style={{ width: "40px", height: "100%" }}
                     />
