@@ -3,8 +3,11 @@ import { useCustom } from "../store/store";
 import Button from "./Button";
 import { useParams } from "react-router-dom";
 import { io } from "socket.io-client";
+import { useQueryClient } from "@tanstack/react-query";
+import { readMessages } from "../services/readMessages";
 
 const Chatting =()=>{
+  const queryClient = useQueryClient();
   const [val,setVal]=useState('');
   const [socket,setSocket]=useState(null);
   const {receiverId} = useParams();
@@ -19,6 +22,13 @@ const Chatting =()=>{
     setSocket(sk);
     if(receiverId !== undefined){
       sk.emit('register',user._id,receiverId);
+      const cachedFriends = queryClient.getQueriesData({queryKey:['friends',user]});
+      if(cachedFriends[0][1]){
+        const getUnreadMessa = cachedFriends[0][1].get(receiverId).unreadCount;
+        if(getUnreadMessa){
+          readMessages(receiverId,user._id);
+        }
+      }
     }
     sk.on('previousMessages',(previousMessages)=>{
       setMessages(previousMessages)
@@ -34,7 +44,7 @@ const Chatting =()=>{
     sk.off('previousMessages')
     sk.disconnect();
   };
-  },[]);
+  },[receiverId]);
   const handleOnClick = ()=>{
     socket.emit('message',JSON.stringify({receiverId,senderId:user._id,txt:val}));
     setMessages((prev)=> [...prev,{senderId:user._id,message:val,date:new Date().toLocaleTimeString()}] );

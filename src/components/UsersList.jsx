@@ -26,9 +26,14 @@ const UsersList=()=>{
   });
   const getFriends = async()=>{
     const result = await Axios.get(`/user/userFriends/${user._id}`);
-    // console.log(result.data);
-    return result.data;
-}
+    const friendMap = new Map();
+    result.data.friends?.map((friend)=>{
+      if(!friendMap.has(friend._id)){
+        friendMap.set(friend._id,friend);
+      }
+    });
+    return friendMap;
+};
 const {data:friendsData,isLoading:friendsLoading} = useQuery({
     queryKey:['friends',user],
     queryFn:getFriends,
@@ -50,19 +55,20 @@ return   <MDBCol md="6" lg="5" xl="4" className="mb-4 mb-md-0">
       className="form-control rounded"
       placeholder="Search"
       onChange={handleInputChange}
-      // value={state}
+      value={state}
       type="search"
     />
-    {/* <Button text={'Search'} onEvent={handleSearch} /> */}
+    <Button text={'Search'} /> 
   </MDBInputGroup>
     <MDBTypography listUnStyled className="mb-0">
-    {
-        (state !== "" ? data : friendsData)?.map((user,index)=>{
-        return <li key={index} className="p-2 border-bottom">
+    { 
+      friendsData?.size === 0? <h1>No friends Found</h1>:
+       ( Array.from(friendsData.values())?.map((user,index)=>{ 
+        return <li key={index} className="p-2 border-bottom"> 
         <NavLink
           to={`/${user._id}`}
           className="d-flex justify-content-between"
-        >
+        > 
           <div className="d-flex flex-row">
             <div>
               <img
@@ -85,10 +91,10 @@ return   <MDBCol md="6" lg="5" xl="4" className="mb-4 mb-md-0">
             <span className="badge bg-danger rounded-pill float-end">
               {user.unreadCount}
             </span>
-          </div>
-        </NavLink>
-      </li>
-      })
+          </div> 
+         </NavLink> 
+       </li> 
+       }) )
     }
       
     </MDBTypography>
