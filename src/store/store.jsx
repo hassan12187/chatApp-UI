@@ -1,13 +1,10 @@
-import { createContext, useContext, useEffect, useState } from "react"
+import { createContext, useContext, useState } from "react"
 import Axios from "../components/axios";
-import checkToken from "../services/checkToken";
 import { useQuery } from "@tanstack/react-query";
-import { io } from "socket.io-client";
 
 const StoreContext = createContext();
 const Store=({children})=>{
     const [token,handlesetToken]=useState(localStorage.getItem("token"));
-    const [socket,handleSocket]=useState(null);
     const getToken=()=>{
         return localStorage.getItem('token')
     }
@@ -45,13 +42,7 @@ const Store=({children})=>{
             console.log(`error getting user ${error}`);
         }
     };
-    const connectToWebSocket=()=>{
-        if(socket) return socket;
-        console.log("hello ?");
-        handleSocket(ioSocket);
-        return socket
-    }
-    return <StoreContext.Provider value={{socket,connectToWebSocket,getUserById,removeToken,token,user:data,isLoading,setToken,getToken}}>
+    return <StoreContext.Provider value={{getUserById,removeToken,token,user:data,isLoading,setToken,getToken}}>
     {children}
     </StoreContext.Provider>
 }

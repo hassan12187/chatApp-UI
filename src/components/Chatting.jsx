@@ -2,14 +2,13 @@ import { useEffect, useState } from "react"
 import { useCustom } from "../store/store";
 import Button from "./Button";
 import { useParams } from "react-router-dom";
-import { io } from "socket.io-client";
 import { useQueryClient } from "@tanstack/react-query";
 import { readMessages } from "../services/readMessages";
+import socket from "../services/socket";
 
 const Chatting =()=>{
   const queryClient = useQueryClient();
   const [val,setVal]=useState('');
-  const [socket,setSocket]=useState(null);
   const {receiverId} = useParams();
   const [messages,setMessages]=useState([]);
   const {user}=useCustom();
@@ -18,10 +17,11 @@ const Chatting =()=>{
     setVal(value);
   }
   useEffect(()=>{
-    const sk = io('ws://localhost:8000');
-    setSocket(sk);
+    socket.on('connect',()=>{
+      console.log("connected");
+    })
     if(receiverId !== undefined){
-      sk.emit('register',user._id,receiverId);
+      socket.emit('register',user._id,receiverId);
       const cachedFriends = queryClient.getQueriesData({queryKey:['friends',user]});
       if(cachedFriends[0][1]){
         const getUnreadMessa = cachedFriends[0][1].get(receiverId).unreadCount;
@@ -30,19 +30,20 @@ const Chatting =()=>{
         }
       }
     }
-    sk.on('previousMessages',(previousMessages)=>{
+    socket.on('previousMessages',(previousMessages)=>{
+      console.log(previousMessages)
       setMessages(previousMessages)
     })
-    sk.on('messageSender',(msg)=>{
+    socket.on('messageSender',(msg)=>{
       console.log(msg);
       setMessages((prev)=>{
         return [...prev,msg]
       });
     });
   return ()=>{
-    sk.off('messageSender');
-    sk.off('previousMessages')
-    sk.disconnect();
+    socket.off('messageSender');
+    socket.off('previousMessages')
+    socket.disconnect();
   };
   },[receiverId]);
   const handleOnClick = ()=>{

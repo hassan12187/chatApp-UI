@@ -1,5 +1,5 @@
 import { MDBCol, MDBInputGroup, MDBTypography } from "mdb-react-ui-kit";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Axios from '../components/axios';
 import { NavLink } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -7,7 +7,7 @@ import { useCustom } from "../store/store";
 import Button from "./Button";
 
 const UsersList=()=>{
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
   const [state,setState]=useState('');
   const {token,user}=useCustom();
   const handleInputChange = async(e)=>{
@@ -40,13 +40,7 @@ const {data:friendsData,isLoading:friendsLoading} = useQuery({
     staleTime:Infinity,
     cacheTime:Infinity
 });
-// const getUnreadMessages=async()=>{
-//  const unread = await Axios.get(`/user/unreadMessages/${user._id}`)
-//   console.log(unread);
-// }
-// useEffect(()=>{ 
-//   getUnreadMessages();
-// },[])
+
 if(friendsLoading)return <h1>Loading...</h1>;
 return   <MDBCol md="6" lg="5" xl="4" className="mb-4 mb-md-0">
 <div className="p-3">
