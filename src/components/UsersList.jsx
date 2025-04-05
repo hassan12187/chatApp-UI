@@ -8,22 +8,22 @@ import Button from "./Button";
 
 const UsersList=()=>{
   // const queryClient = useQueryClient();
-  const [state,setState]=useState('');
+  // const [state,setState]=useState('');
   const {token,user}=useCustom();
-  const handleInputChange = async(e)=>{
-    setState(e.target.value);
-  };
-  const {data,isLoading}=useQuery({
-    queryKey:['userSearching',state],
-    queryFn:async()=>{
-      if(state==="")return;
-      const result = await Axios.get(`/user/allUsers?q=${state}`);
-      return result.data;
-    },
-    keepPreviousData:true,
-    staleTime:Infinity,
-    cacheTime:Infinity
-  });
+  // const handleInputChange = async(e)=>{
+  //   setState(e.target.value);
+  // };
+  // const {data,isLoading}=useQuery({
+  //   queryKey:['userSearching',state],
+  //   queryFn:async()=>{
+  //     if(state==="")return;
+  //     const result = await Axios.get(`/user/allUsers?q=${state}`);
+  //     return result.data;
+  //   },
+    // keepPreviousData:true,
+    // staleTime:Infinity,
+    // cacheTime:Infinity
+  // });
   const getFriends = async()=>{
     const result = await Axios.get(`/user/userFriends/${user._id}`);
     const friendMap = new Map();
@@ -45,13 +45,13 @@ if(friendsLoading)return <h1>Loading...</h1>;
 return   <MDBCol md="6" lg="5" xl="4" className="mb-4 mb-md-0">
 <div className="p-3">
   <MDBInputGroup className="rounded mb-3">
-    <input
+    {/* <input
       className="form-control rounded"
       placeholder="Search"
       onChange={handleInputChange}
       value={state}
       type="search"
-    />
+    /> */}
     <Button text={'Search'} /> 
   </MDBInputGroup>
     <MDBTypography listUnStyled className="mb-0">

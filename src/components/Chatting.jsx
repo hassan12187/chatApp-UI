@@ -17,9 +17,6 @@ const Chatting =()=>{
     setVal(value);
   }
   useEffect(()=>{
-    socket.on('connect',()=>{
-      console.log("connected");
-    })
     if(receiverId !== undefined){
       socket.emit('register',user._id,receiverId);
       const cachedFriends = queryClient.getQueriesData({queryKey:['friends',user]});
@@ -31,7 +28,7 @@ const Chatting =()=>{
       }
     }
     socket.on('previousMessages',(previousMessages)=>{
-      console.log(previousMessages)
+      console.log(`previous messages ${previousMessages}`)
       setMessages(previousMessages)
     })
     socket.on('messageSender',(msg)=>{
@@ -43,7 +40,6 @@ const Chatting =()=>{
   return ()=>{
     socket.off('messageSender');
     socket.off('previousMessages')
-    socket.disconnect();
   };
   },[receiverId]);
   const handleOnClick = ()=>{

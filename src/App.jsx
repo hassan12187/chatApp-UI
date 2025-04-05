@@ -8,6 +8,7 @@ import { Home } from './pages/Home';
 import ProtectedRoute from './components/ProtectedRoute';
 import UserDetail from './pages/UserDetail';
 import Friends from './pages/Friends';
+
 const App = ()=>{
     const router = createBrowserRouter([
         {

@@ -1,6 +1,6 @@
 import {Chat} from '../components/Chat';
 import { useCustom } from '../store/store';
-import { memo, useEffect } from 'react';
+import { memo } from 'react';
 export const Home = memo(()=>{
     const {isLoading}=useCustom();
 
