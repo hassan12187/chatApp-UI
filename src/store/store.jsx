@@ -16,7 +16,7 @@ const Store=({children})=>{
         handlesetToken("");
         return localStorage.removeItem("token");
     }
-    const {data,isLoading}=useQuery({
+    const {data:user,isLoading}=useQuery({
         queryKey:['user',token],
         queryFn:async()=>{
                 if(!token)throw new Error('no token available');
@@ -42,7 +42,25 @@ const Store=({children})=>{
             console.log(`error getting user ${error}`);
         }
     };
-    return <StoreContext.Provider value={{getUserById,removeToken,token,user:data,isLoading,setToken,getToken}}>
+    const getFriends = async()=>{
+        const result = await Axios.get(`/user/userFriends/${user._id}`);
+        console.log(result);
+        const friendMap = new Map();
+        result.data?.map((friend)=>{
+          if(!friendMap.has(friend._id)){
+            friendMap.set(friend._id,friend);
+          }
+        });
+        return friendMap;
+    };
+    const {data:friendsData,isLoading:friendsLoading} = useQuery({
+        queryKey:['friends',user],
+        queryFn:getFriends,
+        staleTime:Infinity,
+        cacheTime:Infinity
+    });
+    
+    return <StoreContext.Provider value={{getUserById,removeToken,friendsData,friendsLoading,token,user,isLoading,setToken,getToken}}>
     {children}
     </StoreContext.Provider>
 }

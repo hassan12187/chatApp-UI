@@ -8,6 +8,8 @@ import { Home } from './pages/Home';
 import ProtectedRoute from './components/ProtectedRoute';
 import UserDetail from './pages/UserDetail';
 import Friends from './pages/Friends';
+import MyAccount from './pages/MyAccount';
+import VerifyEmail from './components/VerifyEmail';
 
 const App = ()=>{
     const router = createBrowserRouter([
@@ -23,7 +25,22 @@ const App = ()=>{
                     path:'/:receiverId',
                     element:<Home />
                 },
+              
                 {
+                    path:"/user/:id",
+                    element:<ProtectedRoute element={<UserDetail />} />
+                },
+                {
+                    path:'/friends',
+                    element:<ProtectedRoute element={<Friends />} />
+                },
+                {
+                    path:"/myaccount",
+                    element:<ProtectedRoute element={<MyAccount />} />
+                }
+            ]
+        },
+          {
                     path:'/login',
                     element:<Login />
                 },
@@ -32,14 +49,9 @@ const App = ()=>{
                     element:<Signup />
                 },
                 {
-                    path:"/user/:id",
-                    element:<ProtectedRoute element={<UserDetail />} />
-                },{
-                    path:'/friends',
-                    element:<ProtectedRoute element={<Friends />} />
+                    path:"/email/verifyEmail",
+                    element:<VerifyEmail />
                 }
-            ]
-        }
     ]);
     return <RouterProvider router={router}/>
 }

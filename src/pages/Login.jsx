@@ -1,7 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Axios from '../components/axios';
 import { useCustom } from "../store/store";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import Form from "../components/Form";
+import Button from "../components/Button";
+import Input from "../components/Input";
+import { toast } from "react-toastify";
 
 export const Login = ()=>{
     const navigate = useNavigate();
@@ -19,30 +23,29 @@ export const Login = ()=>{
     };
     const handleFormSubmit=async(e)=>{
         e.preventDefault();
-        const {data,status} = await Axios.post('/user/login',user,{
-            withCredentials:"Include"
-         });
-         if(status==200){
-             setToken(data.token);
-             return navigate({pathname:'/'});
-         }
+        try {
+            const result = await Axios.post('/user/login',user,{
+                withCredentials:"Include"
+             });
+             if(result.status===200){
+                setToken(result.data.token);
+                return navigate({pathname:'/'});
+            }
+        } catch (error) {
+            if(error.response.status===400){
+               toast.error(error.response.data.message)
+            }
+        }
+       
+      
+        
     }
-    return <>
-           <div className="container mt-3">
-        <h1>Login</h1>
-            <form method="post" onSubmit={handleFormSubmit}>
-            <div className="row">
-                <div className="col-md-12 my-2">
-                <label htmlFor="email" className="form-label">email</label>
-                    <input type="email" name="email" id="email" onChange={handleInputChange} value={user.email} className="form-control" placeholder="enter email" />
-                </div>
-                <div className="col-md-12">
-                <label htmlFor="password" className="form-label">password</label>
-                    <input type="password" name="password" id="password" onChange={handleInputChange} value={user.password} className="form-control" placeholder="enter password" />
-                </div>
-            </div>
-            <button type="submit" className="btn btn-primary mt-3">Login</button>
-            </form>
-        </div>
+    useEffect(()=>{document.title="Login"},[]);
+    return <>   
+    <Form title={"Login"} formSubmission={handleFormSubmit} link={<NavLink to={'/signup'}>Don't have an account ? Register Now</NavLink>}>
+    <Input labelTitle={"Email"} name={"email"} placeholder={'Enter Email'} onEvent={handleInputChange} type={"email"} value={user.email} />
+    <Input labelTitle={"Password"} name={"password"} placeholder={'Enter Password'} onEvent={handleInputChange} type={"password"} value={user.password} />
+         <Button text={"Login"} type={'submit'} />
+    </Form>
     </>
 }
