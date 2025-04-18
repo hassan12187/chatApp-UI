@@ -9,7 +9,7 @@ import {ToastContainer} from 'react-toastify';
 
 const queryClient = new QueryClient();
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+  // <StrictMode>
   <QueryClientProvider client={queryClient}>
   <Store>
     <App />
@@ -29,5 +29,5 @@ theme="light"
   </Store>
   <ReactQueryDevtools initialIsOpen={false} />
   </QueryClientProvider>
-  </StrictMode>,
+  
 )

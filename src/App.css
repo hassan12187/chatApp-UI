@@ -24,3 +24,26 @@ header a{
 input{
   border: 1px solid rgb(141, 141, 141) !important;
 }
+.search-input{
+  position: relative;
+}
+.search-input .drop-down{
+  z-index: 9999;
+  background-color: black;
+  width: 100%;
+  position: absolute;
+}
+.search-input .drop-down ul li{
+  margin: 10px 10px 0 0;
+}
+.notification-icon{
+  position: relative;
+}
+.notification-icon .request-dropdown{
+  width: 400px;
+  top:40px;
+  position: absolute;
+  right:-50px;
+  z-index: 999;
+  background: darkslategrey;
+}

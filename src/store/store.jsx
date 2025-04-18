@@ -16,35 +16,39 @@ const Store=({children})=>{
         handlesetToken("");
         return localStorage.removeItem("token");
     }
-    const {data:user,isLoading}=useQuery({
-        queryKey:['user',token],
+    const {data:user,isLoading} = useQuery({
+        queryKey:['userDetail',token],
         queryFn:async()=>{
-                if(!token)throw new Error('no token available');
-                 const {data} = await Axios.get('/validate',{
+            const result = await Axios.get(`/user/allUsers?q=`,{
                 headers:{
                     Authorization:`Bearer ${token}`
                 }
             });
-            return data;
-            },
-            staleTime:Infinity,
-            cacheTime:Infinity
-        });
+            return result.data;
+        },
+        staleTime:Infinity,
+        cacheTime:Infinity
+    });
+    
     const getUserById=async(uid)=>{
         try {
-            const user = await Axios.get(`user/${uid}`,{
+            const result = await Axios.get(`/user/${uid}`,{
                 headers:{
-                    Authorization:`Bearer ${token}`
+                    Authorization:`Bearer ${token}`,
                 }
             });
-            return user.data;
+            return result.data;
         } catch (error) {
             console.log(`error getting user ${error}`);
         }
     };
     const getFriends = async()=>{
-        const result = await Axios.get(`/user/userFriends/${user._id}`);
-        console.log(result);
+        console.log('hassan bhai',result);
+        const result = await Axios.get(`/user/userFriends`,{
+            headers:{
+                Authorization:`Bearer ${token}`
+            }
+        });
         const friendMap = new Map();
         result.data?.map((friend)=>{
           if(!friendMap.has(friend._id)){
@@ -53,14 +57,30 @@ const Store=({children})=>{
         });
         return friendMap;
     };
-    const {data:friendsData,isLoading:friendsLoading} = useQuery({
-        queryKey:['friends',user],
+    const {data:friendsData} = useQuery({
+        queryKey:['friends',token],
         queryFn:getFriends,
         staleTime:Infinity,
         cacheTime:Infinity
     });
+    const confirmFriendRequest=async()=>{
+        try {
+            await Axios.patch('/user/confirmFriendRequest',null,{
+                headers:{
+                    Authorization:`Bearer ${token}`
+                }
+            });
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    const readMessages=async(receiverId,userId)=>{
+        const result = await Axios.patch(`/user/readMessages`,{receiverId,userId});
+        console.log(result);
+        return result;
+    }
     
-    return <StoreContext.Provider value={{getUserById,removeToken,friendsData,friendsLoading,token,user,isLoading,setToken,getToken}}>
+    return <StoreContext.Provider value={{getUserById,readMessages,confirmFriendRequest,removeToken,friendsData,token,user,setToken,getToken}}>
     {children}
     </StoreContext.Provider>
 }

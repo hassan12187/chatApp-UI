@@ -3,8 +3,8 @@ import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useCustom } from "../store/store";
 import Button from "./Button";
-import { useQuery } from "@tanstack/react-query";
 import Axios from "./axios";
+import Input from "./Input";
 
 const UsersList=()=>{
   const [state,setState]=useState('');
@@ -12,30 +12,24 @@ const UsersList=()=>{
     setState(e.target.value);
   }
   const {friendsLoading,friendsData,user}=useCustom();
-  const {data:friends,isLoading:friendsLoad}=useQuery({
-    queryKey:['userSearch',state],
-    queryFn:async()=>{
-      const result = await Axios.get(`user/allUsers?q=${state}`)
-      return result.data;
-    }
-  })
 if(friendsLoading)return <h1>Loading...</h1>;
 return   <MDBCol md="6" lg="5" xl="4" className="mb-4 mb-md-0" style={{borderRight:"1px solid gray"}}>
 <div className="p-3">
   <MDBInputGroup className="rounded mb-3">
-    <input
+    <Input placeholder={'Search..'} onEvent={handleInputChange} value={state} type={'search'} />
+    {/* <input
       className="form-control rounded"
       placeholder="Search"
       onChange={handleInputChange}
       value={state}
       type="search"
-    />
+    /> */}
     {/* <Button text={'Search'} />  */}
   </MDBInputGroup>
     <MDBTypography listUnStyled className="mb-0">
     { 
-      friendsData?.size === 0? <h1>No friends Found</h1>:
-       ( (friends === undefined ? Array.from(friendsData.values()) : friends)?.map((friend,index)=>{ 
+      (friendsData?.size === 0 || friendsData === undefined)? <h1>No friends Found</h1>:
+       Array.from(friendsData.value())?.map((friend,index)=>{ 
         return <li key={index} className="p-2 border-bottom"> 
         <NavLink
           to={`/${friend._id}`}
@@ -66,7 +60,7 @@ return   <MDBCol md="6" lg="5" xl="4" className="mb-4 mb-md-0" style={{borderRig
           </div> 
          </NavLink> 
        </li> 
-       }) )
+       }) 
     }
       
     </MDBTypography>

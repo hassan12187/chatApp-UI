@@ -27,6 +27,7 @@ export const Login = ()=>{
             const result = await Axios.post('/user/login',user,{
                 withCredentials:"Include"
              });
+             console.log(result);
              if(result.status===200){
                 setToken(result.data.token);
                 return navigate({pathname:'/'});
@@ -36,16 +37,15 @@ export const Login = ()=>{
                toast.error(error.response.data.message)
             }
         }
-       
-      
         
     }
     useEffect(()=>{document.title="Login"},[]);
     return <>   
-    <Form title={"Login"} formSubmission={handleFormSubmit} link={<NavLink to={'/signup'}>Don't have an account ? Register Now</NavLink>}>
+    <Form title={"Login"} formSubmission={handleFormSubmit} link={<div className="d-flex justify-content-between"><NavLink to={'/forgotPassword'}>Forgot Password ?</NavLink> <NavLink to={'/signup'}>Don't have an account ? Register Now</NavLink></div>}>
     <Input labelTitle={"Email"} name={"email"} placeholder={'Enter Email'} onEvent={handleInputChange} type={"email"} value={user.email} />
     <Input labelTitle={"Password"} name={"password"} placeholder={'Enter Password'} onEvent={handleInputChange} type={"password"} value={user.password} />
          <Button text={"Login"} type={'submit'} />
+    
     </Form>
     </>
 }
