@@ -10,42 +10,47 @@ const Chatting =()=>{
   const [val,setVal]=useState('');
   const {receiverId} = useParams();
   const [messages,setMessages]=useState([]);
-  const {user,readMessages}=useCustom();
+  const {user,readMessages,isLoading}=useCustom();
   const handleInputChange = (e)=>{
     const {value}=e.target;
     setVal(value);
   }
   useEffect(()=>{
+    console.log("chatting component")
     if(receiverId !== undefined){
-      socket.emit('getPreviousMessages',user._id,receiverId);
-      const cachedFriends = queryClient.getQueriesData({queryKey:['friends',user]});
-      if(cachedFriends[0][1]){
-        const getUnreadMessa = cachedFriends[0][1]?.get(receiverId)?.unreadCount;
-        if(getUnreadMessa){
-          readMessages(receiverId,user._id);
-        }
-      }
+      socket.emit('getPreviousMessages',receiverId);
+      // const cachedFriends = queryClient.getQueriesData({queryKey:['friends',user]});
+      // if(cachedFriends){
+      //   console.log(cachedFriends);
+      //   const getUnreadMessa = cachedFriends[0][1]?.get(receiverId)?.unreadCount;
+      //   if(getUnreadMessa){
+        //     readMessages(receiverId,user._id);
+      //   }
+      // }
     }
-    socket.on('previousMessages',(previousMessages)=>{
+    const handlePreviousMessages=(previousMessages)=>{
       console.log(`previous messages ${previousMessages}`)
       setMessages(previousMessages)
-    })
-    socket.on('messageSender',(msg)=>{
+    }
+    const handleMessageSender=(msg)=>{
       console.log(msg);
       setMessages((prev)=>{
         return [...prev,msg]
       });
-    });
-  return ()=>{
-    socket.off('messageSender');
-    socket.off('previousMessages')
+    }
+    socket.on('previousMessages',handlePreviousMessages)
+    socket.on('messageSender',handleMessageSender);
+    return ()=>{
+      socket.off('messageSender',handleMessageSender);
+    socket.off('previousMessages',handlePreviousMessages)
   };
-  },[receiverId]);
+},[receiverId]);
   const handleOnClick = ()=>{
     socket.emit('message',JSON.stringify({receiverId,senderId:user._id,txt:val}));
-    setMessages((prev)=> [...prev,{senderId:user._id,message:val,date:new Date().toLocaleTimeString()}] );
     setVal("");
+    setMessages((prev)=> [...prev,{senderId:user._id,message:val,date:new Date().toLocaleTimeString()}] );
   };
+  if(isLoading)return <h1>Loading...</h1>
     return <> 
                 {
                   messages?.map(({senderId,message,date},index)=>{
@@ -102,7 +107,7 @@ const Chatting =()=>{
                       name="message"
                       placeholder="Type message"
                     />
-                    <Button text={'SEND'}  onEvent={handleOnClick} />
+                    <Button text={'SEND'} onEvent={handleOnClick} />
                   </div>
     </>
 }

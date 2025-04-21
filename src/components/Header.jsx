@@ -60,23 +60,34 @@ const handleMenuClose = () => {
       }
     })
   const {data:friendReq,isLoading:friendReqDataLoading}=useQuery({
-    queryKey:['friendReq',token],
+    queryKey:['friendReq'],
     queryFn:async()=>{
       try {
         const result = await Axios.get('/user/friendRequests',{
           headers:{Authorization:`Bearer ${token}`}
-        })
-        return result.data;
+        });
+        result.viewed = false;
+        console.log(result);
+        return result;
       } catch (error) {
         console.log(error);
       }
-    }
+    },
+    staleTime:Infinity,
+    cacheTime:Infinity
   })
+      socket.on('friendOnline',(onlineFriend)=>{
+      console.log("hello ?",onlineFriend);
+    })
   React.useEffect(()=>{
     socket.on('new_friend_request',(val)=>{
       console.log("you have new friend request.",val);
       setFriendRequests((prev)=>{return [...prev,val]});
     })
+    socket.on("request_accepted",(result)=>{
+      console.log(result);
+    });
+
   },[socket])
   const menuId = 'primary-search-account-menu';
   const renderMenu = (
@@ -208,13 +219,14 @@ const handleMenuClose = () => {
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
             <IconButton size="large" aria-label="show 4 new mails" color="inherit">
-              <Badge badgeContent={0} color="error" className='notification-icon'>
+              <Badge badgeContent={friendReq?.viewed === false ? friendReq?.data.length : null} color="error" className='notification-icon'>
                 <MailIcon onClick={()=>{
-                  setState(!state)
+                  setState(!state);
+                  friendReq.viewed=true;
                 }} />
                 {
                   state?
-             <FriendRequestList friendReq={friendReq} />:null
+             <FriendRequestList friendReq={friendReq?.data} />:null
                 }
               </Badge>
             </IconButton>

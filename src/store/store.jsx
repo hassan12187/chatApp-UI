@@ -1,6 +1,7 @@
 import { createContext, useContext, useState } from "react"
 import Axios from "../components/axios";
 import { useQuery } from "@tanstack/react-query";
+import socket from "../services/socket";
 
 const StoreContext = createContext();
 const Store=({children})=>{
@@ -43,7 +44,6 @@ const Store=({children})=>{
         }
     };
     const getFriends = async()=>{
-        console.log('hassan bhai',result);
         const result = await Axios.get(`/user/userFriends`,{
             headers:{
                 Authorization:`Bearer ${token}`
@@ -51,25 +51,22 @@ const Store=({children})=>{
         });
         const friendMap = new Map();
         result.data?.map((friend)=>{
-          if(!friendMap.has(friend._id)){
-            friendMap.set(friend._id,friend);
-          }
+            if(!friendMap.has(friend._id)){
+                friendMap.set(friend._id,friend);
+            }
         });
+        console.log('hassan bhai',result);
         return friendMap;
     };
-    const {data:friendsData} = useQuery({
+    const {data:friendsData,isLoading:friendsLoading} = useQuery({
         queryKey:['friends',token],
         queryFn:getFriends,
         staleTime:Infinity,
         cacheTime:Infinity
     });
-    const confirmFriendRequest=async()=>{
+    const confirmFriendRequest=async(obj)=>{
         try {
-            await Axios.patch('/user/confirmFriendRequest',null,{
-                headers:{
-                    Authorization:`Bearer ${token}`
-                }
-            });
+            socket.emit("confirm_request",obj);
         } catch (error) {
             console.log(error);
         }
@@ -79,8 +76,7 @@ const Store=({children})=>{
         console.log(result);
         return result;
     }
-    
-    return <StoreContext.Provider value={{getUserById,readMessages,confirmFriendRequest,removeToken,friendsData,token,user,setToken,getToken}}>
+    return <StoreContext.Provider value={{isLoading,getUserById,readMessages,confirmFriendRequest,removeToken,friendsData,token,user,setToken,getToken,friendsLoading}}>
     {children}
     </StoreContext.Provider>
 }

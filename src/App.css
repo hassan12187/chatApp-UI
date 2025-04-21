@@ -47,3 +47,14 @@ input{
   z-index: 999;
   background: darkslategrey;
 }
+.user-list .image-box{
+  position: relative;
+}
+.user-list .image-box .badge-dot{
+  position: absolute;
+  height: 15px;
+  color: green;
+  border-radius: 50%;
+  left: -10px;
+  bottom: 8px;
+}
