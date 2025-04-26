@@ -13,6 +13,7 @@ import VerifyEmail from './components/VerifyEmail';
 import { useEffect } from 'react';
 import socket from './services/socket';
 import { useCustom } from './store/store';
+import TypingAnimation from './components/TypingAnimation';
 
 const App = ()=>{
     const {user,setUser,token} = useCustom();

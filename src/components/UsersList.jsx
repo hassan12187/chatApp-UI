@@ -17,25 +17,32 @@ const UsersList=()=>{
   }
   useEffect(()=>{
     socket.on("onlineFriends",(onlineUser)=>{
-      console.log(onlineUser);
       setOnlineFriends((prev)=>{
-        return [...prev,...onlineUser]
+        return onlineUser
       })
     })
-    socket.on("friendOnline",({username,_id})=>{
-      console.log(username,_id);
+    socket.on("friendOnline",(id)=>{
       setOnlineFriends((prev)=>{
-        return [...prev,_id]
+        if(!prev.includes(id))return [...prev,id];
+        return prev;          
       })
     })
-    socket.on('friendOffline',(friendOffline)=>{
-      const ind = onlineFriends.indexOf(friendOffline)
-      setOnlineFriends((prev)=>{
-        prev.splice(ind,1)
-      })
+    socket.on('friendOffline',(id)=>{
+      const value = onlineFriends[onlineFriends.length -1];
+      if(value ===id){
+      }
+      // setOnlineFriends(onlineFriends.filter((val,ind)=>{
+      //   return val != id
+      // }))
     })
+    return ()=>{
+      socket.off('onlineFriends')
+      socket.off('friendOnline')
+      socket.off('friendOffline')
+    }
   },[socket])
   if(friendsLoading)return <h1>Loading...</h1>;
+  console.log(onlineFriends)
 return   <MDBCol md="6" lg="5" xl="4" className="mb-4 mb-md-0" style={{borderRight:"1px solid gray"}}>
 <div className="p-3">
   <MDBInputGroup className="rounded mb-3">

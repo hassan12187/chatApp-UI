@@ -1,15 +1,17 @@
-import { useEffect, useState } from "react"
+import React, {  useEffect, useState } from "react"
 import { useCustom } from "../store/store";
 import Button from "./Button";
 import { useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import socket from "../services/socket";
+import TypingAnimation from '../components/TypingAnimation';
 
 const Chatting =()=>{
   const queryClient = useQueryClient();
   const [val,setVal]=useState('');
   const {receiverId} = useParams();
   const [messages,setMessages]=useState([]);
+  // const [friendTyping,setFriendTyping]=useState(null);
   const {user,readMessages,isLoading}=useCustom();
   const handleInputChange = (e)=>{
     const {value}=e.target;
@@ -19,6 +21,9 @@ const Chatting =()=>{
     console.log("chatting component")
     if(receiverId !== undefined){
       socket.emit('getPreviousMessages',receiverId);
+      socket.on('previousMessages',(messages)=>{
+        console.log(messages)
+      })
       // const cachedFriends = queryClient.getQueriesData({queryKey:['friends',user]});
       // if(cachedFriends){
       //   console.log(cachedFriends);
@@ -32,25 +37,63 @@ const Chatting =()=>{
       console.log(`previous messages ${previousMessages}`)
       setMessages(previousMessages)
     }
-    const handleMessageSender=(msg)=>{
-      console.log(msg);
+    const handleMessageSender=({senderId,message,date})=>{
+      console.log("user  message",message);
       setMessages((prev)=>{
-        return [...prev,msg]
+        return [...prev,{senderId,message}]
       });
+    };
+    const handleFriendTyping=(typedVal)=>{
+      setMessages((prev)=>{
+        return [...prev,{senderId:user?._id,message: <TypingAnimation/> }]
+     })
+      // setFriendTyping(typedVal);
     }
+    const handleFriendNotTyping=(val)=>{
+      setMessages((prev)=>{
+    // if(prev[prev.length-1] == String && prev[prev.length -2] != String){
+    //   let tmp= prev[prev.length-2];
+    //   prev[prev.length-2]=prev[prev.length-1]
+    //   prev[prev.length-1]=tmp;
+    // }
+    prev.pop();
+        return prev;
+      })
+      // setFriendTyping(val);
+    }
+    socket.on('messageSender',handleMessageSender)
     socket.on('previousMessages',handlePreviousMessages)
-    socket.on('messageSender',handleMessageSender);
+    socket.on('friend-typing',handleFriendTyping)
+    socket.on('friend-not-typing',handleFriendNotTyping);
+    
     return ()=>{
       socket.off('messageSender',handleMessageSender);
-    socket.off('previousMessages',handlePreviousMessages)
-  };
-},[receiverId]);
+      socket.off('previousMessages',handlePreviousMessages);
+      socket.off('friend-typing',handleFriendTyping);
+      socket.off('friend-not-typing',handleFriendNotTyping);
+    };
+  },[receiverId]);
   const handleOnClick = ()=>{
     socket.emit('message',JSON.stringify({receiverId,senderId:user._id,txt:val}));
     setVal("");
     setMessages((prev)=> [...prev,{senderId:user._id,message:val,date:new Date().toLocaleTimeString()}] );
   };
+  const handleOnFocusTyping=(e)=>{
+    
+    if(receiverId){
+      socket.emit("typing",receiverId,true);
+    }
+  }
+  const handleOnFocusOut=(e)=>{
+ 
+    if(receiverId){
+      
+      socket.emit('not-typing',receiverId,false);
+      console.log("focus out")
+    }
+  }
   if(isLoading)return <h1>Loading...</h1>
+
     return <> 
                 {
                   messages?.map(({senderId,message,date},index)=>{
@@ -61,12 +104,17 @@ const Chatting =()=>{
                         style={{ width: "45px", height: "100%" }}
                       />
                       <div>
+                      {
+                      message != String ? <div className="mt-2">{message}</div>:
                         <p
                           className="small p-2 ms-3 mb-1 rounded-3"
                           style={{ backgroundColor: "#f5f6f7" }}
                         >
                           {message}
                         </p>
+
+                      }
+
                         <p className="small ms-3 mb-3 rounded-3 text-muted float-end">
                           {date}
                         </p>
@@ -103,6 +151,8 @@ const Chatting =()=>{
                       className="form-control form-control-lg"
                       id="exampleFormControlInput2"
                       onChange={handleInputChange}
+                      onFocus={handleOnFocusTyping}
+                      onBlur={handleOnFocusOut}
                       value={val}
                       name="message"
                       placeholder="Type message"

@@ -23,6 +23,7 @@ import socket from '../services/socket';
 import FriendRequestList from './friendRequestList';
 import { memo } from 'react';
 import {Search,SearchIconWrapper,StyledInputBase,pages,settings} from './ComponentsForHeader';
+import UserSearchDropDown from './UserSearchDropDown';
 
 export const Header = memo(()=> {
   const [state,setState]=React.useState(false);
@@ -202,20 +203,11 @@ const handleMenuClose = () => {
               }}}
             />{
               !isLoading?(
-            <div className='drop-down'>
-                <div className='content'>
-                  <ul>
-                    {data?.map((searchUser,index)=>{return <NavLink key={index} to={`user/${searchUser?._id}`}>
-                    <li>{searchUser.username} {searchUser?._id ===user?._id ? "(Me)" : null }</li>
-                    </NavLink>
-                    })} 
-                  </ul>
-                </div>
-            </div>
+                <UserSearchDropDown data={data} />
               ):null
             }
             </div>
-          </Search>
+          </Search> 
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
             <IconButton size="large" aria-label="show 4 new mails" color="inherit">
