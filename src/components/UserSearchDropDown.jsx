@@ -1,7 +1,9 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
+import { useCustom } from '../store/store'
 
 const UserSearchDropDown = ({data}) => {
+  const {user}=useCustom();
   return (
         <div className='drop-down'>
                     <div className='content'>

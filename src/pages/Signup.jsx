@@ -25,21 +25,23 @@ export const Signup = ()=>{
         if(user.username.replace(/^\s+|\s+$/g, '') === "" || user.email.replace(/^\s+|\s+$/g, '') === "" || user.password.replace(/^\s+|\s+$/g, '') === ""){
             console.log("white space");
         }else{
-            // const formData = new FormData();
-            // formData.append('username',user.username);
-            // formData.append('email',user.email);
-            // formData.append('password',user.password);
-            // formData.append('profileImage',file);
-            try {
-                const result = await Axios.post('/email/verifyEmail',user,{
-                    headers:{
-                        email:user.email
-                    }
-                });
-                toast.success(result.data.message);
-            } catch (error) {
-                toast.error(error.response.data.message);
-            }
+            const formData = new FormData();
+            formData.append('username',user.username);
+            formData.append('email',user.email);
+            formData.append('password',user.password);
+            formData.append('profileImage',file);
+            const result = await Axios.post('/user/signup',user);
+            console.log(result);
+            // try {
+            //     const result = await Axios.post('/email/verifyEmail',user,{
+            //         headers:{
+            //             email:user.email
+            //         }
+            //     });
+            //     toast.success(result.data.message);
+            // } catch (error) {
+            //     toast.error(error.response.data.message);
+            // }
         }
     }
     const handleFileUpload=(e)=>{
