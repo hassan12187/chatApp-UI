@@ -1,10 +1,11 @@
 import { createContext, useContext, useState } from "react"
 import Axios from "../components/axios";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import socket from "../services/socket";
 
 const StoreContext = createContext();
 const Store=({children})=>{
+    const queryClient = useQueryClient();
     const [token,handlesetToken]=useState(localStorage.getItem("token"));
     const getToken=()=>{
         return localStorage.getItem('token')
@@ -15,12 +16,29 @@ const Store=({children})=>{
     }
     const removeToken=()=>{
         handlesetToken("");
-        return localStorage.removeItem("token");
+        localStorage.removeItem("token");
+        socket.disconnect();
     }
+    const mutation = useMutation({
+        mutationFn:async(obj)=>{
+            const result = await Axios.patch(`/user/request`,obj,{
+                headers:{
+                    Authorization:`Bearer ${token}`
+                }
+            });
+            if(result.status===200){
+                socket.emit("confirm_request",obj);
+            }
+            return result;
+        },
+        onSuccess:()=>{
+          queryClient.invalidateQueries([['friendReq',token],['friends',token]]);
+        }
+      })
     const {data:user,isLoading} = useQuery({
         queryKey:['userDetail',token],
         queryFn:async()=>{
-            const result = await Axios.get(`/user/allUsers?q=`,{
+            const result = await Axios.get(`/user?q=`,{
                 headers:{
                     Authorization:`Bearer ${token}`
                 }
@@ -38,13 +56,14 @@ const Store=({children})=>{
                     Authorization:`Bearer ${token}`,
                 }
             });
+            console.log(result);
             return result.data;
         } catch (error) {
             console.log(`error getting user ${error}`);
         }
     };
     const getFriends = async()=>{
-        const result = await Axios.get(`/user/userFriends`,{
+        const result = await Axios.get(`/user/friend`,{
             headers:{
                 Authorization:`Bearer ${token}`
             }
@@ -66,17 +85,20 @@ const Store=({children})=>{
     });
     const confirmFriendRequest=async(obj)=>{
         try {
-            socket.emit("confirm_request",obj);
+            mutation.mutate(obj);
         } catch (error) {
             console.log(error);
         }
     }
     const readMessages=async(receiverId,userId)=>{
-        const result = await Axios.patch(`/user/readMessages`,{receiverId,userId});
-        console.log(result);
+        const result = await Axios.patch(`/user/messages`,{receiverId,userId},{
+            headers:{
+                Authorization:`Bearer ${token}`
+            }
+        });
         return result;
     }
-    return <StoreContext.Provider value={{isLoading,getUserById,readMessages,confirmFriendRequest,removeToken,friendsData,token,user,setToken,getToken,friendsLoading}}>
+    return <StoreContext.Provider value={{isLoading,getUserById,readMessages,confirmFriendRequest,removeToken,friendsData,token,user,setToken,getToken,friendsLoading,queryClient}}>
     {children}
     </StoreContext.Provider>
 }

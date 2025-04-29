@@ -7,7 +7,7 @@ import socket from '../services/socket';
 
 const UserDetail = () => {
     const {id}=useParams();
-    const {getUserById,getToken,user} = useCustom();
+    const {getUserById,user} = useCustom();
     const {data,isLoading}=useQuery({
       queryKey:[`userDetail`,id],
       queryFn:()=>getUserById(id),
@@ -16,6 +16,7 @@ const UserDetail = () => {
       socket.emit("add-friend",{requestSender:user, 
         requestReceiver:id});
     }
+    console.log(data);
     if (isLoading)return <h1 className='container'>Loading....</h1>
   return (
     <div className='container'>

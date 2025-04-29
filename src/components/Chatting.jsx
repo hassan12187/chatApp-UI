@@ -2,37 +2,27 @@ import React, {  useEffect, useState } from "react"
 import { useCustom } from "../store/store";
 import Button from "./Button";
 import { useParams } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import socket from "../services/socket";
 import TypingAnimation from '../components/TypingAnimation';
 
 const Chatting =()=>{
-  const queryClient = useQueryClient();
   const [val,setVal]=useState('');
   const {receiverId} = useParams();
   const [messages,setMessages]=useState([]);
-  // const [friendTyping,setFriendTyping]=useState(null);
-  const {user,readMessages,isLoading}=useCustom();
+  const {user,readMessages,isLoading,token,queryClient}=useCustom();
+  const mutation = useMutation({
+    mutationFn:readMessages,
+    onSuccess:(data,variables)=>{
+      queryClient.invalidateQueries(['friends',token]);
+    },
+    
+  })
   const handleInputChange = (e)=>{
     const {value}=e.target;
     setVal(value);
   }
   useEffect(()=>{
-    console.log("chatting component")
-    if(receiverId !== undefined){
-      socket.emit('getPreviousMessages',receiverId);
-      socket.on('previousMessages',(messages)=>{
-        console.log(messages)
-      })
-      // const cachedFriends = queryClient.getQueriesData({queryKey:['friends',user]});
-      // if(cachedFriends){
-      //   console.log(cachedFriends);
-      //   const getUnreadMessa = cachedFriends[0][1]?.get(receiverId)?.unreadCount;
-      //   if(getUnreadMessa){
-        //     readMessages(receiverId,user._id);
-      //   }
-      // }
-    }
     const handlePreviousMessages=(previousMessages)=>{
       console.log(`previous messages ${previousMessages}`)
       setMessages(previousMessages)
@@ -43,29 +33,49 @@ const Chatting =()=>{
         return [...prev,{senderId,message}]
       });
     };
-    const handleFriendTyping=(typedVal)=>{
+    const handleFriendTyping=()=>{
       setMessages((prev)=>{
-        return [...prev,{senderId:user?._id,message: <TypingAnimation/> }]
-     })
-      // setFriendTyping(typedVal);
-    }
-    const handleFriendNotTyping=(val)=>{
-      setMessages((prev)=>{
-    // if(prev[prev.length-1] == String && prev[prev.length -2] != String){
-    //   let tmp= prev[prev.length-2];
-    //   prev[prev.length-2]=prev[prev.length-1]
-    //   prev[prev.length-1]=tmp;
-    // }
-    prev.pop();
-        return prev;
+        return [...prev,{senderId:user?._id,message: "Typing..." }]
       })
-      // setFriendTyping(val);
     }
-    socket.on('messageSender',handleMessageSender)
-    socket.on('previousMessages',handlePreviousMessages)
-    socket.on('friend-typing',handleFriendTyping)
-    socket.on('friend-not-typing',handleFriendNotTyping);
-    
+    const handleFriendNotTyping=()=>{
+        setMessages((prev)=>{
+          if(prev.length > 0 && prev[prev.length-1].message === "Typing..."){
+            const newArray = [...prev];
+            newArray.pop();
+            return newArray
+          }
+          if(prev.length > 0 && prev[prev.length-2].message==="Typing..."){
+            let temp=prev[prev.length-1];
+            prev[prev.length-1]=prev[prev.length-2];
+            prev[prev.length-1]=temp;
+          }
+          return prev;
+        })
+      }
+    if(receiverId !=undefined){
+      socket.emit('getPreviousMessages',receiverId);
+      socket.on('previousMessages',(messages)=>{
+        console.log(messages)
+      })
+      const cachedFriends = queryClient.getQueriesData({queryKey:['friends',token]});
+      if(cachedFriends){
+        const getUnreadMessa = cachedFriends[0][1]?.get(receiverId)?.unreadCount;
+        if(getUnreadMessa){
+            readMessages(receiverId,user._id).then((dat)=>{
+              if(dat.status===200){
+                mutation.mutate();
+              }
+            });
+            
+        }
+      }
+
+        socket.on('messageSender',handleMessageSender)
+        socket.on('previousMessages',handlePreviousMessages)
+        socket.on('friend-typing',handleFriendTyping);
+        socket.on('friend-not-typing',handleFriendNotTyping);
+      }
     return ()=>{
       socket.off('messageSender',handleMessageSender);
       socket.off('previousMessages',handlePreviousMessages);
@@ -79,17 +89,13 @@ const Chatting =()=>{
     setMessages((prev)=> [...prev,{senderId:user._id,message:val,date:new Date().toLocaleTimeString()}] );
   };
   const handleOnFocusTyping=(e)=>{
-    
     if(receiverId){
-      socket.emit("typing",receiverId,true);
+      socket.emit("typing",receiverId);
     }
   }
   const handleOnFocusOut=(e)=>{
- 
     if(receiverId){
-      
-      socket.emit('not-typing',receiverId,false);
-      console.log("focus out")
+      socket.emit('not-typing',receiverId);
     }
   }
   if(isLoading)return <h1>Loading...</h1>

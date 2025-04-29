@@ -17,7 +17,7 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import MoreIcon from '@mui/icons-material/MoreVert';
 import { NavLink } from 'react-router-dom';
 import { useCustom } from '../store/store';
-import { useQuery } from '@tanstack/react-query';
+import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import Axios from './axios';
 import socket from '../services/socket';
 import FriendRequestList from './friendRequestList';
@@ -29,7 +29,7 @@ export const Header = memo(()=> {
   const [state,setState]=React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
-  const {removeToken,user,token} = useCustom();
+  const {removeToken,user,token,queryClient} = useCustom();
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
   const [searchVal,setSearchVal] = React.useState("");
@@ -52,7 +52,7 @@ const handleMenuClose = () => {
   const {data,isLoading} = useQuery({
     queryKey:['search-input',searchVal],
     queryFn:async()=>{
-      const result = await Axios.get(`/user/allUsers?q=${searchVal}`,{
+      const result = await Axios.get(`/user?q=${searchVal}`,{
         headers:{
             Authorization:`Bearer ${token}`
           }
@@ -61,10 +61,10 @@ const handleMenuClose = () => {
       }
     })
   const {data:friendReq,isLoading:friendReqDataLoading}=useQuery({
-    queryKey:['friendReq'],
+    queryKey:['friendReq',token],
     queryFn:async()=>{
       try {
-        const result = await Axios.get('/user/friendRequests',{
+        const result = await Axios.get('/user/request',{
           headers:{Authorization:`Bearer ${token}`}
         });
         result.viewed = false;
@@ -77,16 +77,17 @@ const handleMenuClose = () => {
     staleTime:Infinity,
     cacheTime:Infinity
   })
+ 
       socket.on('friendOnline',(onlineFriend)=>{
       console.log("hello ?",onlineFriend);
     })
   React.useEffect(()=>{
     socket.on('new_friend_request',(val)=>{
       console.log("you have new friend request.",val);
-      setFriendRequests((prev)=>{return [...prev,val]});
+      friendReq.push([...friendReq,val]);
     })
     socket.on("request_accepted",(result)=>{
-      console.log(result);
+      queryClient.invalidateQueries(['friends',token]);
     });
 
   },[socket])

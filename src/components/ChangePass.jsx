@@ -7,12 +7,13 @@ import { useCustom } from '../store/store'
 import { toast } from 'react-toastify'
 
 const ChangePass = () => {
+    const {user} = useCustom();
     const [pass,setPass]=useState({
         currentPass:'',
     newPass:'',
-    confirmPass:''
+    confirmPass:'',
+    id:user._id
     });
-    const {user} = useCustom();
     const handlePassEvent = (e)=>{
         const {value,name}=e.target;
         setPass((prevVal)=>{
@@ -23,7 +24,7 @@ const ChangePass = () => {
         e.preventDefault();
         if(pass.newPass !== pass.confirmPass){return toast.error('New Password and Confirm Password not matched.')};
         try {
-            const result = await Axios.post(`/email/verifyPassAndSendEmail/${user._id}`,pass,{
+            const result = await Axios.post(`/email/password`,pass,{
              headers:{
                  email:user.email
              }

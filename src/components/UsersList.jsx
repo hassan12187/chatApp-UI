@@ -2,20 +2,19 @@ import { MDBCol, MDBInputGroup, MDBTypography } from "mdb-react-ui-kit";
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useCustom } from "../store/store";
-import Button from "./Button";
-import Axios from "./axios";
 import Input from "./Input";
 import socket from "../services/socket";
-import {toast} from 'react-toastify';
 
 const UsersList=()=>{
   const [state,setState]=useState('');
   const {friendsLoading,user,friendsData}=useCustom();
   const [onlineFriends,setOnlineFriends]=useState([]);
+
   const handleInputChange=(e)=>{
     setState(e.target.value);
   }
   useEffect(()=>{
+
     socket.on("onlineFriends",(onlineUser)=>{
       setOnlineFriends((prev)=>{
         return onlineUser
@@ -40,9 +39,9 @@ const UsersList=()=>{
       socket.off('friendOnline')
       socket.off('friendOffline')
     }
-  },[socket])
+  },[socket]);
   if(friendsLoading)return <h1>Loading...</h1>;
-  console.log(onlineFriends)
+  console.log(friendsData)
 return   <MDBCol md="6" lg="5" xl="4" className="mb-4 mb-md-0" style={{borderRight:"1px solid gray"}}>
 <div className="p-3">
   <MDBInputGroup className="rounded mb-3">

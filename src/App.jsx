@@ -10,21 +10,8 @@ import UserDetail from './pages/UserDetail';
 import Friends from './pages/Friends';
 import MyAccount from './pages/MyAccount';
 import VerifyEmail from './components/VerifyEmail';
-import { useEffect } from 'react';
-import socket from './services/socket';
-import { useCustom } from './store/store';
-import TypingAnimation from './components/TypingAnimation';
 
 const App = ()=>{
-    const {user,setUser,token} = useCustom();
-
-    // useEffect(()=>{
-      
-    //     data!=undefined?socket.emit('register',data?._id) : null;
-    //    return ()=>{
-    //     socket.off('register')
-    //    } 
-    // },[data])
     const router = createBrowserRouter([
         {
             path:"/",
