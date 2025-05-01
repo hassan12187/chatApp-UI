@@ -7,16 +7,21 @@ import socket from '../services/socket';
 
 const UserDetail = () => {
     const {id}=useParams();
-    const {getUserById,user} = useCustom();
+    const {getUserById,user,queryClient} = useCustom();
     const {data,isLoading}=useQuery({
       queryKey:[`userDetail`,id],
       queryFn:()=>getUserById(id),
+      staleTime:Infinity,
+      cacheTime:Infinity
     });
     const addFriend=()=>{
       socket.emit("add-friend",{requestSender:user, 
-        requestReceiver:id});
+        requestReceiver:id},(response)=>{
+          if(response.status==200){
+            queryClient.invalidateQueries(['UserDetail',id]);
+          }
+        });
     }
-    console.log(data);
     if (isLoading)return <h1 className='container'>Loading....</h1>
   return (
     <div className='container'>

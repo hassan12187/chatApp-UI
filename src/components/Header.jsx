@@ -83,8 +83,7 @@ const handleMenuClose = () => {
     })
   React.useEffect(()=>{
     socket.on('new_friend_request',(val)=>{
-      console.log("you have new friend request.",val);
-      friendReq.push([...friendReq,val]);
+      queryClient.invalidateQueries(['friendReq',token]);
     })
     socket.on("request_accepted",(result)=>{
       queryClient.invalidateQueries(['friends',token]);

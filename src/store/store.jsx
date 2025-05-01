@@ -56,7 +56,6 @@ const Store=({children})=>{
                     Authorization:`Bearer ${token}`,
                 }
             });
-            console.log(result);
             return result.data;
         } catch (error) {
             console.log(`error getting user ${error}`);
