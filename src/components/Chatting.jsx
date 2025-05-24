@@ -23,22 +23,30 @@ const Chatting =()=>{
     setVal(value);
   }
   useEffect(()=>{
-    const handlePreviousMessages=(previousMessages)=>{
-      console.log(`previous messages ${previousMessages}`)
-      setMessages(previousMessages)
-    }
+    // socket.on("chatWindow",(senderId)=>{
+    //   if(receiverId == senderId){
+    //     socket.emit(`chat`,true);
+    //   }
+    // })
     const handleMessageSender=({senderId,message,date})=>{
-      console.log("user  message",message);
-      setMessages((prev)=>{
-        return [...prev,{senderId,message}]
-      });
+      if(senderId == receiverId){
+        console.log("user  message",message);
+        setMessages((prev)=>{
+          return [...prev,{senderId,message}]
+        });
+      }
     };
-    const handleFriendTyping=()=>{
-      setMessages((prev)=>{
-        return [...prev,{senderId:user?._id,message: "Typing..." }]
-      })
-    }
-    const handleFriendNotTyping=()=>{
+    const handleFriendTyping=(sender)=>{
+      if(sender == receiverId){
+
+        setMessages((prev)=>{
+          return [...prev,{senderId:user?._id,message: "Typing..." }]
+        })
+      }
+    } 
+    const handleFriendNotTyping=(sender)=>{
+      if(sender == receiverId){
+
         setMessages((prev)=>{
           if(prev.length > 0 && prev[prev.length-1].message === "Typing..."){
             const newArray = [...prev];
@@ -53,11 +61,14 @@ const Chatting =()=>{
           return prev;
         })
       }
-    if(receiverId !=undefined){
-      socket.emit('getPreviousMessages',receiverId);
-      socket.on('previousMessages',(messages)=>{
-        console.log(messages)
-      })
+      }
+    if(receiverId && receiverId != user?._id){
+      socket.emit('getPreviousMessages',receiverId,(response)=>{
+        setMessages(response);
+      });
+      // socket.on('previousMessages',(messages)=>{
+      //   console.log(messages)
+      // })
       const cachedFriends = queryClient.getQueriesData({queryKey:['friends',token]});
       if(cachedFriends){
         const getUnreadMessa = cachedFriends[0][1]?.get(receiverId)?.unreadCount;
@@ -72,13 +83,13 @@ const Chatting =()=>{
       }
 
         socket.on('messageSender',handleMessageSender)
-        socket.on('previousMessages',handlePreviousMessages)
+        // socket.on('previousMessages',handlePreviousMessages)
         socket.on('friend-typing',handleFriendTyping);
         socket.on('friend-not-typing',handleFriendNotTyping);
       }
     return ()=>{
       socket.off('messageSender',handleMessageSender);
-      socket.off('previousMessages',handlePreviousMessages);
+      // socket.off('previousMessages',handlePreviousMessages);
       socket.off('friend-typing',handleFriendTyping);
       socket.off('friend-not-typing',handleFriendNotTyping);
     };
@@ -90,12 +101,12 @@ const Chatting =()=>{
   };
   const handleOnFocusTyping=(e)=>{
     if(receiverId){
-      socket.emit("typing",receiverId);
+      socket.emit("typing",receiverId,user?._id);
     }
   }
   const handleOnFocusOut=(e)=>{
     if(receiverId){
-      socket.emit('not-typing',receiverId);
+      socket.emit('not-typing',receiverId,user?._id);
     }
   }
   if(isLoading)return <h1>Loading...</h1>

@@ -1,6 +1,6 @@
 import { MDBCol, MDBInputGroup, MDBTypography } from "mdb-react-ui-kit";
 import { useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useParams } from "react-router-dom";
 import { useCustom } from "../store/store";
 import Input from "./Input";
 import socket from "../services/socket";
@@ -14,7 +14,6 @@ const UsersList=()=>{
     setState(e.target.value);
   }
   useEffect(()=>{
-
     socket.on("onlineFriends",(onlineUser)=>{
       setOnlineFriends((prev)=>{
         return onlineUser

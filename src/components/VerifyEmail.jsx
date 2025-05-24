@@ -15,12 +15,12 @@ const VerifyEmail = () => {
     }
     useEffect(()=>{
         window.open('http://localhost:5173/email/verifyEmail?','_blank')
-        const status = postion();
-        if(status===200){
-          window.close();
-        }else{
-          window.close();
-        }
+        postion();
+        // if(status===200){
+        //   window.close();
+        // }else{
+        //   window.close();
+        // }
     },[])
   return (
     <></>
